@@ -6,7 +6,7 @@ const api = axios.create({
 
 // Add token automatically if available
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token"); // Context also syncs with localStorage
   if (token) {
     config.headers["token"] = token;
   }

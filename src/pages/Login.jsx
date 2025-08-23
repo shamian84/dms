@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Login() {
   const [mobile, setMobile] = useState("");
@@ -9,6 +10,9 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  // 🔹 Access login function from AuthContext
+  const { login } = useContext(AuthContext);
 
   // Step 1: Generate OTP
   const handleGenerateOtp = async (e) => {
@@ -42,13 +46,10 @@ export default function Login() {
 
       // Try multiple possible token locations
       const token =
-        res.data.token || // case 1: direct token
-        res.data?.data?.token || // case 2: inside data
-        res.data?.Token || // case 3: capitalized
-        "dummy-token"; // fallback for development
+        res.data.token || res.data?.data?.token || res.data?.Token || null;
 
       if (token) {
-        localStorage.setItem("token", token);
+        login(token); // ✅ save token via context
         navigate("/dashboard");
       } else {
         setError("Invalid response: " + JSON.stringify(res.data));
