@@ -10,10 +10,12 @@ export default function SearchPage() {
   const [toDate, setToDate] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [previewFile, setPreviewFile] = useState(null);
 
   const personalNames = ["John", "Tom", "Emily"];
   const professionalDepartments = ["Accounts", "HR", "IT", "Finance"];
 
+  // Add tag
   const handleAddTag = () => {
     if (newTag && !tags.includes(newTag)) {
       setTags([...tags, newTag]);
@@ -21,6 +23,7 @@ export default function SearchPage() {
     }
   };
 
+  // Perform search
   const handleSearch = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -31,7 +34,7 @@ export default function SearchPage() {
         from_date: fromDate,
         to_date: toDate,
         tags: tags.map((t) => ({ tag_name: t })),
-        uploaded_by: "", // optional
+        uploaded_by: "",
         start: 0,
         length: 10,
         filterId: "",
@@ -40,7 +43,9 @@ export default function SearchPage() {
 
       const res = await api.post("/searchDocumentEntry", body);
       console.log("Search Response:", res.data);
-      setResults(res.data.documents || []); // adjust based on actual backend response
+
+      // Adjust depending on actual backend response
+      setResults(res.data.documents || []);
     } catch (err) {
       console.error("Search Error:", err);
     } finally {
@@ -155,11 +160,17 @@ export default function SearchPage() {
 
       {/* Results */}
       <div className="mt-5">
-        <h3>Results</h3>
+        <div className="d-flex justify-content-between align-items-center">
+          <h3>Results</h3>
+          {results.length > 0 && (
+            <button className="btn btn-warning">Download All as ZIP</button>
+          )}
+        </div>
+
         {results.length === 0 ? (
-          <p>No documents found.</p>
+          <p className="mt-3">No documents found.</p>
         ) : (
-          <table className="table table-bordered">
+          <table className="table table-bordered mt-3">
             <thead>
               <tr>
                 <th>File Name</th>
@@ -183,10 +194,20 @@ export default function SearchPage() {
                   </td>
                   <td>{doc.document_date}</td>
                   <td>
-                    <button className="btn btn-sm btn-success me-2">
+                    <button
+                      className="btn btn-sm btn-success me-2"
+                      onClick={() => setPreviewFile(doc)}
+                    >
                       Preview
                     </button>
-                    <button className="btn btn-sm btn-primary">Download</button>
+                    <a
+                      href={doc.file_url || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-primary"
+                    >
+                      Download
+                    </a>
                   </td>
                 </tr>
               ))}
@@ -194,6 +215,60 @@ export default function SearchPage() {
           </table>
         )}
       </div>
+
+      {/* Preview Modal */}
+      {previewFile && (
+        <div className="modal d-block" tabIndex="-1">
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  Preview: {previewFile.file_name}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setPreviewFile(null)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                {previewFile.file_url?.endsWith(".pdf") ? (
+                  <iframe
+                    src={previewFile.file_url}
+                    width="100%"
+                    height="500px"
+                    title="PDF Preview"
+                  ></iframe>
+                ) : previewFile.file_url?.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                  <img
+                    src={previewFile.file_url}
+                    alt="Preview"
+                    className="img-fluid"
+                  />
+                ) : (
+                  <p>Preview not available for this file type.</p>
+                )}
+              </div>
+              <div className="modal-footer">
+                <a
+                  href={previewFile.file_url}
+                  className="btn btn-primary"
+                  download
+                >
+                  Download
+                </a>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setPreviewFile(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
