@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import UploadPage from "./pages/UploadPage";
@@ -8,10 +13,16 @@ import AdminPage from "./pages/AdminPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
 
-export default function App() {
+function AppLayout() {
+  const location = useLocation();
+
+  // hide Navbar only on login page
+  const hideNavbar =
+    location.pathname === "/login" || location.pathname === "/";
+
   return (
-    <Router>
-      <Navbar />
+    <>
+      {!hideNavbar && <Navbar />}
       <div className="container mt-4">
         <Routes>
           {/* Public */}
@@ -55,6 +66,14 @@ export default function App() {
           <Route path="*" element={<Login />} />
         </Routes>
       </div>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <AppLayout />
     </Router>
   );
 }
