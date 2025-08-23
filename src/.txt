@@ -11,6 +11,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // 🔹 Access login function from AuthContext
   const { login } = useContext(AuthContext);
 
   // Step 1: Generate OTP
@@ -21,19 +22,7 @@ export default function Login() {
     try {
       const res = await api.post("/generateOTP", { mobile_number: mobile });
       console.log("Generate OTP Response:", res.data);
-
-      if (res.data.status === true) {
-        // ✅ API says OTP sent
-        setStep(2);
-      } else {
-        // ⚠️ Not registered -> fallback to mock login
-        if (res.data.data?.includes("not yet Registered")) {
-          alert("Mock Mode: Use OTP 1234 for testing");
-          setStep(2);
-        } else {
-          setError(res.data.data || "Failed to generate OTP.");
-        }
-      }
+      setStep(2); // move to OTP input
     } catch (err) {
       console.error("Generate OTP Error:", err);
       setError("Failed to generate OTP. Try again.");
@@ -48,15 +37,6 @@ export default function Login() {
     setLoading(true);
     setError("");
     try {
-      // 🟢 If using mock mode
-      if (otp === "1234") {
-        const dummyToken = "mock-token-12345";
-        login(dummyToken);
-        navigate("/dashboard");
-        return;
-      }
-
-      // 🟢 Normal API mode
       const res = await api.post("/validateOTP", {
         mobile_number: mobile,
         otp,
@@ -64,14 +44,15 @@ export default function Login() {
 
       console.log("Validate OTP Response:", res.data);
 
+      // Try multiple possible token locations
       const token =
         res.data.token || res.data?.data?.token || res.data?.Token || null;
 
       if (token) {
-        login(token);
+        login(token); // ✅ save token via context
         navigate("/dashboard");
       } else {
-        setError(res.data.message || "Invalid OTP");
+        setError("Invalid response: " + JSON.stringify(res.data));
       }
     } catch (err) {
       console.error("Validate OTP Error:", err);
