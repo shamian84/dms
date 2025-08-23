@@ -7,8 +7,9 @@ import {
 } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import AdminPage from "./pages/AdminPage"; 
+import AdminPage from "./pages/AdminPage";
 import UploadPage from "./pages/UploadPage";
+import SearchPage from "./pages/SearchPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/upload" element={<UploadPage />} />
+        <Route path="/search" element={<SearchPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
