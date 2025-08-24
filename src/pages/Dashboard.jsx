@@ -32,12 +32,8 @@ export default function Dashboard() {
   return (
     <div
       style={{
-        background: "linear-gradient(135deg, #667eea, #764ba2)",
         minHeight: "100vh",
-        width: "100vw", // ensures full width
-        position: "fixed", // locks it
-        top: 60,
-        left: 0,
+        position: "relative",
         padding: "100px 0",
       }}
     >
@@ -55,10 +51,11 @@ export default function Dashboard() {
           management.
         </p>
 
-        <div className="row g-4">
+        {/* ✅ Responsive row with auto-centering */}
+        <div className="row g-4 justify-content-center">
           {features.map((f, i) => (
             <motion.div
-              className="col-md-4"
+              className="col-12 col-sm-6 col-md-4" // ✅ responsive: 1 per row on mobile, 2 on tablets, 3 on desktop
               key={i}
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
@@ -71,6 +68,8 @@ export default function Dashboard() {
                   backdropFilter: "blur(12px)",
                   background: "rgba(255, 255, 255, 0.9)",
                   transition: "transform 0.3s ease-in-out",
+                  maxWidth: "350px", // ✅ keeps card width balanced
+                  margin: "0 auto", // ✅ center on smaller screens
                 }}
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.transform =
@@ -91,7 +90,7 @@ export default function Dashboard() {
                     borderRadius: "10px",
                     padding: "8px 18px",
                   }}
-                  onClick={() => navigate(f.route)} // 🔗 navigate to respective page
+                  onClick={() => navigate(f.route)}
                 >
                   Explore
                 </button>

@@ -111,10 +111,8 @@ export default function Login() {
     <div
       className="d-flex justify-content-center align-items-center vh-100"
       style={{
-        background: "linear-gradient(135deg, #667eea, #764ba2)",
         minHeight: "100vh",
-        width: "100vw", // ensures full width
-        position: "fixed", // locks it
+        position: "relative", // locks it
         top: 0,
         left: 0,
       }}

@@ -21,7 +21,6 @@ export default function UploadPage() {
   const personalNames = ["John", "Tom", "Emily"];
   const professionalDepartments = ["Accounts", "HR", "IT", "Finance"];
 
-  // Fetch tags
   useEffect(() => {
     const fetchTags = async () => {
       try {
@@ -34,7 +33,6 @@ export default function UploadPage() {
     fetchTags();
   }, []);
 
-  // Add tag
   const handleAddTag = () => {
     if (newTag && !tags.includes(newTag)) {
       setTags([...tags, newTag]);
@@ -42,12 +40,8 @@ export default function UploadPage() {
     }
   };
 
-  // Remove tag
-  const handleRemoveTag = (tag) => {
-    setTags(tags.filter((t) => t !== tag));
-  };
+  const handleRemoveTag = (tag) => setTags(tags.filter((t) => t !== tag));
 
-  // Handle drag-drop
   const handleDragOver = (e) => {
     e.preventDefault();
     setDragActive(true);
@@ -56,11 +50,9 @@ export default function UploadPage() {
   const handleDrop = (e) => {
     e.preventDefault();
     setDragActive(false);
-    const droppedFile = e.dataTransfer.files[0];
-    validateFile(droppedFile);
+    validateFile(e.dataTransfer.files[0]);
   };
 
-  // Validate file type/size
   const validateFile = (f) => {
     if (!f) return;
     if (!["application/pdf", "image/png", "image/jpeg"].includes(f.type)) {
@@ -75,7 +67,6 @@ export default function UploadPage() {
     setMessage("");
   };
 
-  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
@@ -109,7 +100,6 @@ export default function UploadPage() {
         },
       });
 
-      console.log("Upload Response:", res.data);
       setMessage("✅ File uploaded successfully!");
       setFile(null);
       setTags([]);
@@ -126,228 +116,219 @@ export default function UploadPage() {
   return (
     <div
       style={{
-        background: "linear-gradient(135deg, #667eea, #764ba2)",
         minHeight: "100vh",
-        width: "100vw", // ensures full width
-        position: "fixed", // locks it
-        top: 60,
-        left: 0,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: "80px 0",
       }}
     >
-      <div
-        className="container mt-5"
-        style={{ position: "relative", zIndex: 1, padding: "40px 0" }}
+      <motion.div
+        className="card p-4 shadow-lg"
+        style={{
+          borderRadius: "10px",
+          background: "linear-gradient(135deg, #ffffff, #f8f9ff)",
+        }}
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
       >
-        <motion.div
-          className="card p-4 shadow-lg w-75 mx-auto"
-          style={{
-            borderRadius: "10px",
-            boxShadow: "0 12px 20px rgba(0,0,0,0.25)",
-            background: "linear-gradient(135deg, #667eea, #f3f6ff)",
-          }}
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="mb-4 fw-bold text-center">📤 Upload Document</h2>
+        <h2 className="mb-4 fw-bold text-center">📤 Upload Document</h2>
 
-          {message && (
-            <motion.div
-              className={`alert text-center ${
-                message.includes("✅") ? "alert-success" : "alert-danger"
-              }`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              {message}
-            </motion.div>
-          )}
+        {message && (
+          <motion.div
+            className={`alert text-center ${
+              message.includes("✅") ? "alert-success" : "alert-danger"
+            }`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {message}
+          </motion.div>
+        )}
 
-          <form onSubmit={handleSubmit} className="row g-4">
-            {/* LEFT COLUMN */}
-            <div className="col-md-6">
-              {/* Date */}
+        <form onSubmit={handleSubmit} className="row g-4">
+          {/* LEFT COLUMN */}
+          <div className="col-md-6">
+            {/* Date */}
+            <div className="mb-3">
+              <label className="form-label fw-semibold">📅 Document Date</label>
+              <input
+                type="date"
+                className="form-control"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Major */}
+            <div className="mb-3">
+              <label className="form-label fw-semibold">📂 Category</label>
+              <select
+                className="form-control"
+                value={majorHead}
+                onChange={(e) => {
+                  setMajorHead(e.target.value);
+                  setMinorHead("");
+                }}
+                required
+              >
+                <option value="">Select</option>
+                <option value="Personal">Personal</option>
+                <option value="Professional">Professional</option>
+              </select>
+            </div>
+
+            {/* Minor */}
+            {majorHead && (
               <div className="mb-3">
                 <label className="form-label fw-semibold">
-                  📅 Document Date
+                  {majorHead === "Personal" ? "👤 Name" : "🏢 Department"}
                 </label>
-                <input
-                  type="date"
-                  className="form-control"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  required
-                />
-              </div>
-
-              {/* Major */}
-              <div className="mb-3">
-                <label className="form-label fw-semibold">📂 Category</label>
                 <select
                   className="form-control"
-                  value={majorHead}
-                  onChange={(e) => {
-                    setMajorHead(e.target.value);
-                    setMinorHead("");
-                  }}
+                  value={minorHead}
+                  onChange={(e) => setMinorHead(e.target.value)}
                   required
                 >
                   <option value="">Select</option>
-                  <option value="Personal">Personal</option>
-                  <option value="Professional">Professional</option>
+                  {(majorHead === "Personal"
+                    ? personalNames
+                    : professionalDepartments
+                  ).map((item, i) => (
+                    <option key={i} value={item}>
+                      {item}
+                    </option>
+                  ))}
                 </select>
               </div>
+            )}
 
-              {/* Minor */}
-              {majorHead && (
-                <div className="mb-3">
-                  <label className="form-label fw-semibold">
-                    {majorHead === "Personal" ? "👤 Name" : "🏢 Department"}
-                  </label>
-                  <select
-                    className="form-control"
-                    value={minorHead}
-                    onChange={(e) => setMinorHead(e.target.value)}
-                    required
-                  >
-                    <option value="">Select</option>
-                    {(majorHead === "Personal"
-                      ? personalNames
-                      : professionalDepartments
-                    ).map((item, i) => (
-                      <option key={i} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* Tags */}
-              <div className="mb-3">
-                <label className="form-label fw-semibold">🏷️ Tags</label>
-                <div className="d-flex">
-                  <input
-                    type="text"
-                    className="form-control me-2"
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    className="btn"
-                    style={{ backgroundColor: "#4da6ff", color: "white" }}
-                    onClick={handleAddTag}
-                  >
-                    Add
-                  </button>
-                </div>
-                <div className="mt-2">
-                  {tags.map((t, i) => (
-                    <motion.span
-                      key={i}
-                      className="badge bg-primary me-2 p-2"
-                      whileHover={{ scale: 1.1 }}
-                    >
-                      {t}{" "}
-                      <span
-                        role="button"
-                        className="ms-1"
-                        onClick={() => handleRemoveTag(t)}
-                      >
-                        ❌
-                      </span>
-                    </motion.span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* RIGHT COLUMN */}
-            <div className="col-md-6">
-              {/* Remarks */}
-              <div className="mb-3">
-                <label className="form-label fw-semibold">📝 Remarks</label>
-                <textarea
-                  className="form-control"
-                  rows="4"
-                  value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)}
-                ></textarea>
-              </div>
-
-              {/* File Upload + Drag Drop */}
-              <div
-                className={`mb-3 p-4 border rounded text-center ${
-                  dragActive ? "bg-light border-success" : "border-secondary"
-                }`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
-                <label className="form-label fw-semibold d-block">
-                  📎 Upload File (Drag & Drop or Click)
-                </label>
+            {/* Tags */}
+            <div className="mb-3">
+              <label className="form-label fw-semibold">🏷️ Tags</label>
+              <div className="d-flex">
                 <input
-                  type="file"
-                  className="form-control"
-                  accept=".pdf,image/*"
-                  onChange={(e) => validateFile(e.target.files[0])}
+                  type="text"
+                  className="form-control me-2"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
                 />
-                {file && (
-                  <div className="mt-3">
-                    {file.type.includes("image") ? (
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt="preview"
-                        width="120"
-                        className="rounded shadow"
-                      />
-                    ) : (
-                      <p className="text-muted">📄 {file.name}</p>
-                    )}
-                  </div>
-                )}
+                <button
+                  type="button"
+                  className="btn"
+                  style={{ backgroundColor: "#4da6ff", color: "white" }}
+                  onClick={handleAddTag}
+                >
+                  Add
+                </button>
               </div>
-
-              {/* Progress Bar */}
-              {uploading && (
-                <div className="progress mb-3">
-                  <div
-                    className="progress-bar progress-bar-striped progress-bar-animated"
-                    role="progressbar"
-                    style={{ width: `${progress}%` }}
+              <div className="mt-2">
+                {tags.map((t, i) => (
+                  <motion.span
+                    key={i}
+                    className="badge bg-primary me-2 p-2"
+                    whileHover={{ scale: 1.1 }}
                   >
-                    {progress}%
-                  </div>
+                    {t}{" "}
+                    <span
+                      role="button"
+                      className="ms-1"
+                      onClick={() => handleRemoveTag(t)}
+                    >
+                      ❌
+                    </span>
+                  </motion.span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN */}
+          <div className="col-md-6">
+            {/* Remarks */}
+            <div className="mb-3">
+              <label className="form-label fw-semibold">📝 Remarks</label>
+              <textarea
+                className="form-control"
+                rows="4"
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+              ></textarea>
+            </div>
+
+            {/* File Upload + Drag Drop */}
+            <div
+              className={`mb-3 p-4 border rounded text-center ${
+                dragActive ? "bg-light border-success" : "border-secondary"
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              <label className="form-label fw-semibold d-block">
+                📎 Upload File (Drag & Drop or Click)
+              </label>
+              <input
+                type="file"
+                className="form-control"
+                accept=".pdf,image/*"
+                onChange={(e) => validateFile(e.target.files[0])}
+              />
+              {file && (
+                <div className="mt-3">
+                  {file.type.includes("image") ? (
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt="preview"
+                      width="120"
+                      className="rounded shadow"
+                    />
+                  ) : (
+                    <p className="text-muted">📄 {file.name}</p>
+                  )}
                 </div>
               )}
-
-              {/* Submit */}
-              <motion.button
-                type="submit"
-                className="btn btn-success w-100 py-2 fw-semibold"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                disabled={uploading}
-              >
-                {uploading ? "⏳ Uploading..." : "🚀 Upload"}
-              </motion.button>
-
-              {/* Back */}
-              <motion.button
-                type="button"
-                className="btn btn-outline-dark w-100 mt-3"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/dashboard")}
-              >
-                ⬅ Back to Dashboard
-              </motion.button>
             </div>
-          </form>
-        </motion.div>
-      </div>
+
+            {/* Progress Bar */}
+            {uploading && (
+              <div className="progress mb-3">
+                <div
+                  className="progress-bar progress-bar-striped progress-bar-animated"
+                  role="progressbar"
+                  style={{ width: `${progress}%` }}
+                >
+                  {progress}%
+                </div>
+              </div>
+            )}
+
+            {/* Submit */}
+            <motion.button
+              type="submit"
+              className="btn btn-success w-100 py-2 fw-semibold"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              disabled={uploading}
+            >
+              {uploading ? "⏳ Uploading..." : "🚀 Upload"}
+            </motion.button>
+
+            {/* Back */}
+            <motion.button
+              type="button"
+              className="btn btn-outline-dark w-100 mt-3"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/dashboard")}
+            >
+              ⬅ Back to Dashboard
+            </motion.button>
+          </div>
+        </form>
+      </motion.div>
     </div>
   );
 }

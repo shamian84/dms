@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -12,21 +13,40 @@ import SearchPage from "./pages/SearchPage";
 import AdminPage from "./pages/AdminPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
+import { AuthContext } from "./context/AuthContext";
 
 function AppLayout() {
   const location = useLocation();
+  const { token } = useContext(AuthContext);
 
-  // hide Navbar only on login page
+  // Hide Navbar only on login and root page
   const hideNavbar =
     location.pathname === "/login" || location.pathname === "/";
 
   return (
-    <>
+    <div
+      style={{
+        minHeight: "100vh",
+        width: "100%",
+        background: "linear-gradient(135deg, #667eea, #764ba2)",
+      }}
+    >
+      {/* Navbar */}
       {!hideNavbar && <Navbar />}
-      <div className="container mt-4">
+
+      {/* Page Content */}
+      <div
+        className="container"
+        style={{
+          paddingTop: hideNavbar ? "0px" : "80px", // push content below navbar
+        }}
+      >
         <Routes>
           {/* Public */}
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/login"
+            element={token ? <Navigate to="/dashboard" replace /> : <Login />}
+          />
 
           {/* Protected */}
           <Route
@@ -62,11 +82,23 @@ function AppLayout() {
             }
           />
 
-          {/* Default */}
-          <Route path="*" element={<Login />} />
+          {/* Default root → redirect */}
+          <Route
+            path="/"
+            element={
+              token ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-    </>
+    </div>
   );
 }
 

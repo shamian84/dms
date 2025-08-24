@@ -108,27 +108,26 @@ export default function SearchPage() {
   return (
     <div
       style={{
-        background: "linear-gradient(135deg, #667eea, #764ba2)",
         minHeight: "100vh",
-        width: "100vw", // ensures full width
-        position: "fixed", // locks it
-        top: 60,
+        position: "relative",
         left: 0,
       }}
     >
       <div
         style={{
-          background: "linear-gradient(135deg, #667eea, #764ba2)",
           minHeight: "100vh",
           padding: "80px 0",
         }}
       >
+        {/* Outer Card - Responsive Center */}
         <motion.div
-          className="card p-4 shadow-lg w-75 mx-auto"
+          className="card p-4 shadow-lg mx-auto"
           style={{
             borderRadius: "10px",
             boxShadow: "0 12px 20px rgba(0,0,0,0.25)",
-            background: "linear-gradient(135deg, #667eea, #f3f6ff)",
+            background: "linear-gradient(135deg, #ffffff, #f8f9ff)",
+            maxWidth: "900px", // responsive max width
+            width: "95%", // shrink on small devices
           }}
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -136,10 +135,12 @@ export default function SearchPage() {
         >
           {/* Search Card */}
           <div
-            className="card p-4 shadow-lg"
+            className="card p-4 mx-auto"
             style={{
               borderRadius: "15px",
               background: "linear-gradient(135deg, #ffffff, #f8f9ff)",
+              maxWidth: "850px", // slightly smaller
+              width: "100%",
             }}
           >
             <h2 className="fw-bold text-center mb-4">🔍 Search Documents</h2>
@@ -269,7 +270,8 @@ export default function SearchPage() {
               </div>
             </form>
           </div>
-          {/* Results */}
+
+          {/* Results Section */}
           <div className="mt-5">
             <div className="d-flex justify-content-between align-items-center">
               <h3 className="fw-bold">📂 Results ({results.length})</h3>
@@ -324,70 +326,72 @@ export default function SearchPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <table className="table table-hover mt-3">
-                    <thead className="table-dark sticky-top">
-                      <tr>
-                        <th>
-                          <input
-                            type="checkbox"
-                            onChange={(e) =>
-                              setSelectedDocs(
-                                e.target.checked ? [...results] : []
-                              )
-                            }
-                            checked={
-                              selectedDocs.length === results.length &&
-                              results.length > 0
-                            }
-                          />
-                        </th>
-                        <th>File Name</th>
-                        <th>Category</th>
-                        <th>Tags</th>
-                        <th>Date</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paginatedResults.map((doc, index) => (
-                        <tr key={index} className="align-middle">
-                          <td>
+                  <div style={{ overflowX: "auto" }}>
+                    <table className="table table-hover mt-3">
+                      <thead className="table-dark sticky-top">
+                        <tr>
+                          <th>
                             <input
                               type="checkbox"
-                              checked={selectedDocs.includes(doc)}
-                              onChange={() => toggleSelectDoc(doc)}
+                              onChange={(e) =>
+                                setSelectedDocs(
+                                  e.target.checked ? [...results] : []
+                                )
+                              }
+                              checked={
+                                selectedDocs.length === results.length &&
+                                results.length > 0
+                              }
                             />
-                          </td>
-                          <td>{doc.file_name || "N/A"}</td>
-                          <td>{doc.major_head}</td>
-                          <td>
-                            {doc.tags?.map((t, i) => (
-                              <span key={i} className="badge bg-info me-1">
-                                {t.tag_name}
-                              </span>
-                            ))}
-                          </td>
-                          <td>{doc.document_date}</td>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-success me-2"
-                              onClick={() => setPreviewFile(doc)}
-                            >
-                              Preview
-                            </button>
-                            <a
-                              href={doc.file_url || "#"}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn btn-sm btn-primary"
-                            >
-                              Download
-                            </a>
-                          </td>
+                          </th>
+                          <th>File Name</th>
+                          <th>Category</th>
+                          <th>Tags</th>
+                          <th>Date</th>
+                          <th>Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {paginatedResults.map((doc, index) => (
+                          <tr key={index} className="align-middle">
+                            <td>
+                              <input
+                                type="checkbox"
+                                checked={selectedDocs.includes(doc)}
+                                onChange={() => toggleSelectDoc(doc)}
+                              />
+                            </td>
+                            <td>{doc.file_name || "N/A"}</td>
+                            <td>{doc.major_head}</td>
+                            <td>
+                              {doc.tags?.map((t, i) => (
+                                <span key={i} className="badge bg-info me-1">
+                                  {t.tag_name}
+                                </span>
+                              ))}
+                            </td>
+                            <td>{doc.document_date}</td>
+                            <td>
+                              <button
+                                className="btn btn-sm btn-success me-2"
+                                onClick={() => setPreviewFile(doc)}
+                              >
+                                Preview
+                              </button>
+                              <a
+                                href={doc.file_url || "#"}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-sm btn-primary"
+                              >
+                                Download
+                              </a>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
 
                   {/* Pagination */}
                   <div className="d-flex justify-content-center mt-3 gap-2">
@@ -398,7 +402,7 @@ export default function SearchPage() {
                     >
                       ⬅ Prev
                     </button>
-                    <span className="text-white align-self-center">
+                    <span className="text-dark align-self-center">
                       Page {currentPage} / {totalPages}
                     </span>
                     <button
@@ -413,6 +417,7 @@ export default function SearchPage() {
               )}
             </AnimatePresence>
           </div>
+
           {/* Preview Modal */}
           <AnimatePresence>
             {previewFile && (
